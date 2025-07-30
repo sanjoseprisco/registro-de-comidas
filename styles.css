@@ -1,0 +1,291 @@
+/* Reset y base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f4f8;
+  color: #444;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eaecef;
+}
+
+.header h1 {
+  font-size: 1.9rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.header p {
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.logo {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Botones de rol */
+.role-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-role {
+  display: block;
+  width: 250px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-role:hover {
+  transform: translateY(-5px);
+}
+
+.btn-role {
+  background: #a8dadc;
+  color: #1d3557;
+}
+
+.btn-role.btn-chef {
+  background: #f1faee;
+  color: #1d3557;
+}
+
+/* Formularios */
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.input-box {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #c1dce4;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+  font-size: 1rem;
+  background: #f8fdff;
+  max-width: 300px;
+  margin: 0 auto;
+  transition: border-color 0.3s ease;
+}
+
+.input-box:focus {
+  outline: none;
+  border-color: #45b7d1;
+}
+
+/* Grid de comidas */
+.meals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.meal-day {
+  background: #f8fdff;
+  border: 1px solid #e0f0f5;
+  border-radius: 16px;
+  padding: 1.3rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.meal-day:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.meal-day h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #457b9d;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.meal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.meal-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meal-option input {
+  transform: scale(1.2);
+  accent-color: #a8dadc;
+}
+
+.meal-option label {
+  font-weight: 500;
+  color: #2b4a66;
+}
+
+/* Botones de reporte */
+.report-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Resumen de comidas del residente */
+.meals-summary {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f1faee;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-size: 1rem;
+  color: #2c3e50;
+  border: 1px solid #e9f7ef;
+}
+
+.meals-summary strong {
+  color: #1d3557;
+}
+
+/* Tabla de resumen */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.summary-table th,
+.summary-table td {
+  border: 1px solid #dde4e9;
+  padding: 0.7rem;
+  text-align: left;
+}
+
+.summary-table th {
+  background: #a8dadc;
+  color: #1d3557;
+  font-weight: 600;
+}
+
+.summary-table td {
+  background: #f8fdff;
+}
+
+.summary-table ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-table li {
+  margin: 0.2rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .role-buttons,
+  .report-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-role {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .input-box {
+    max-width: 100%;
+  }
+}
