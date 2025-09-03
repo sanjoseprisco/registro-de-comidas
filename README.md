@@ -11,7 +11,7 @@ Esta aplicación permite a los residentes registrar sus comidas y a los cocinero
 
 ## Para Cocineros
 
-- Clave de acceso: **12345**
+- Introduce la clave de acceso.
 - Verás un resumen diario de cuántos residentes comerán.
 - Accede a reportes semanales y mensuales.
 
