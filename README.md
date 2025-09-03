@@ -9,12 +9,6 @@ Esta aplicación permite a los residentes registrar sus comidas y a los cocinero
 - Registra tu asistencia para la **semana siguiente**.
 - Puedes modificar tu selección cuantas veces quieras.
 
-## Para Cocineros
-
-- Clave de acceso: **12345**
-- Verás un resumen diario de cuántos residentes comerán.
-- Accede a reportes semanales y mensuales.
-
 ## Selección de Semana
 
 El sistema muestra dos opciones:
