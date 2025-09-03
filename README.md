@@ -4,7 +4,7 @@ Esta aplicación permite a los residentes registrar sus comidas y a los cocinero
   
 ## Para Residentes
   
-- Accede con tu **apellido**.
+- Accede con tu **apellido**. Utiliza siempre el mismo.
 - Haz tu selección **antes del viernes** de la semana en curso.
 - Registra tu asistencia para la **semana siguiente**.
 - Puedes modificar tu selección cuantas veces quieras.
