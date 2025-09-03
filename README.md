@@ -1,1 +1,1 @@
-Es un programa para que registres con altelación las comidas que piensas hacer. Al menos desde el jueves de las semana en curso para la semana siguiente. De no registrarlas, se entiendo que no deseas realizar las comidas en la casa.
+Es un programa para que registres con altelación las comidas que piensas hacer. Al menos desde el jueves de las semana en curso para la semana siguiente. De no registrarlas, se entiende que no deseas realizar las comidas en la casa.
