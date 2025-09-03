@@ -1,6 +1,6 @@
 # Sistema de Registro de Comidas
 
-Esta aplicación permite a los residentes registrar sus comidas y a los cocineros ver el resumen semanal.
+Esta aplicación permite a los residentes registrar sus comidas y a los cocineros ver el resumen semanal y hacer los pedidos para la semana siguiente.
 
 ## Para Residentes
 
@@ -15,10 +15,4 @@ Esta aplicación permite a los residentes registrar sus comidas y a los cocinero
 - Verás un resumen diario de cuántos residentes comerán.
 - Accede a reportes semanales y mensuales.
 
-## Selección de Semana
-
-El sistema muestra dos opciones:
-- **Semana Actual**: del domingo al sábado de esta semana.
-- **Semana Siguiente**: del domingo al sábado de la próxima semana.
-
-Desarrollado para la Hermandad de Sacerdotes Operarios Diocesanos.
+## Desarrollado para la Hermandad de Sacerdotes Operarios Diocesanos.
