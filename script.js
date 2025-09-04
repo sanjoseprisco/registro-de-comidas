@@ -1,7 +1,7 @@
 // === CONFIGURACIÓN ===
 const CHEF_PIN = "12345";
 const USERS_KEY = "registeredResidents"; // Aún usamos localStorage para residentes (solo nombres)
-const FIREBASE_URL = "https://TU-PROYECTO-default-rtdb.europe-west1.firebasedatabase.app/meals.json";
+const FIREBASE_URL = "https://comedor-residencia-default-rtdb.firebaseio.com/";
 
 // === FUNCIONES DE APOYO ===
 function formatDate(date) {
