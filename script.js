@@ -1,6 +1,6 @@
 // === CONFIGURACIÓN DE GITHUB ===
 const CHEF_PIN = "12345";
-const GITHUB_REPO = "TU-USUARIO/comedor-residencia"; // ← CAMBIA ESTO
+const GITHUB_REPO = "sanjoseprisco/registro-de-comidas";
 const GITHUB_FILE_PATH = "data/meals.json";
 const GITHUB_BRANCH = "main";
 
