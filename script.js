@@ -1,10 +1,12 @@
-// === CONFIGURACIÓN DE FIREBASE ===
-// Cambia 'TU-PROYECTO' por el nombre de tu proyecto en Firebase
-const FIREBASE_URL = "https://TU-PROYECTO-default-rtdb.europe-west1.firebasedatabase.app/meals";
-
-// === CONFIGURACIÓN LOCAL ===
+// === CONFIGURACIÓN DE GITHUB ===
 const CHEF_PIN = "12345";
-const USERS_KEY = "registeredResidents"; // Guarda apellidos localmente
+const GITHUB_REPO = "TU-USUARIO/comedor-residencia"; // ← CAMBIA "TU-USUARIO"
+const GITHUB_FILE_PATH = "data/meals.json";
+const GITHUB_BRANCH = "main";
+
+// Opcional: Token de acceso personal (recomendado para escritura)
+// Crea uno en: Settings > Developer settings > Personal access tokens
+const GITHUB_TOKEN = ""; // Deja vacío si no usas token (límite: 60 escrituras/hora)
 
 // === FUNCIONES DE APOYO ===
 function formatDate(date) {
@@ -29,16 +31,14 @@ function getWeekDates(sunday) {
   return dates;
 }
 
-// === Obtiene el domingo de esta semana ===
 function getCurrentWeekSunday() {
   const today = new Date();
-  const day = today.getDay(); // 0 = domingo
+  const day = today.getDay();
   const sunday = new Date(today);
   sunday.setDate(today.getDate() - day);
   return sunday;
 }
 
-// === Obtiene el domingo de la próxima semana ===
 function getNextWeekSunday() {
   const sunday = getCurrentWeekSunday();
   const nextSunday = new Date(sunday);
@@ -46,81 +46,77 @@ function getNextWeekSunday() {
   return nextSunday;
 }
 
-// === GESTIÓN DE RESIDENTES (localStorage) ===
-function getResidents() {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
-  } catch (e) {
-    return {};
-  }
-}
-
-function registerResident(lastName) {
-  const residents = getResidents();
-  if (!residents[lastName]) {
-    residents[lastName] = true;
-    localStorage.setItem(USERS_KEY, JSON.stringify(residents));
-  }
-}
-
-// === GESTIÓN DE COMIDAS: Firebase (corregido) ===
-
-// Leer comidas de un usuario específico
-async function getUserMeals(user) {
-  try {
-    const response = await fetch(`${FIREBASE_URL}/${encodeURIComponent(user)}.json`);
-    const data = await response.json();
-    return data || {};
-  } catch (e) {
-    console.error("Error leyendo comidas del usuario:", e);
-    return {};
-  }
-}
-
-// Guardar comidas de un usuario (sin afectar a otros)
-async function saveUserMeals(user, meals) {
-  try {
-    await fetch(`${FIREBASE_URL}/${encodeURIComponent(user)}.json`, {
-      method: "PUT",
-      body: JSON.stringify(meals),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-  } catch (e) {
-    console.error("Error guardando comidas:", e);
-  }
-}
-
-// Leer todas las comidas (para cocineros)
+// === GESTIÓN DE COMIDAS: GitHub API ===
 async function getAllMeals() {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
   try {
-    const response = await fetch(`${FIREBASE_URL}.json`);
+    const response = await fetch(url);
     const data = await response.json();
-    return data || {};
+
+    if (!response.ok) throw new Error(data.message || "Error en API");
+
+    const decodedContent = atob(data.content);
+    return JSON.parse(decodedContent) || {};
   } catch (e) {
-    console.error("Error leyendo todas las comidas:", e);
+    console.warn("No se pudo cargar meals.json:", e.message);
     return {};
   }
 }
 
-// === NAVEGACIÓN ENTRE PANTALLAS ===
-function showSection(id) {
-  const sections = ["home-screen", "residente-modal", "cocinero-modal", "residente-app", "cocinero-app"];
-  sections.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = "none";
-  });
-  document.getElementById(id).style.display = id.includes("modal") ? "flex" : "block";
+async function saveAllMeals(mealsData) {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(mealsData, null, 2))));
+
+  const options = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GITHUB_TOKEN ? `token ${GITHUB_TOKEN}` : "",
+    },
+    body: JSON.stringify({
+      message: `Actualización de comidas - ${new Date().toLocaleString()}`,
+      content: content,
+      branch: GITHUB_BRANCH,
+    }),
+  };
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const error = await response.json();
+      alert("Error al guardar: " + error.message);
+      console.error("GitHub error:", error);
+    }
+  } catch (e) {
+    alert("Error de conexión. Revisa tu red.");
+    console.error("Error guardando:", e);
+  }
 }
 
-// === RESIDENTE: MODAL DE INGRESO ===
+async function getUserMeals(user) {
+  const allMeals = await getAllMeals();
+  return allMeals[user] || {};
+}
+
+async function saveUserMeals(user, meals) {
+  const allMeals = await getAllMeals();
+  allMeals[user] = meals;
+  await saveAllMeals(allMeals);
+}
+
+// === NAVEGACIÓN ===
+function showSection(id) {
+  ["home-screen", "residente-modal", "cocinero-modal", "residente-app", "cocinero-app"]
+    .forEach(id => document.getElementById(id)?.setAttribute("style", "display: none"));
+  document.getElementById(id)?.setAttribute("style", id.includes("modal") ? "display: flex" : "display: block");
+}
+
+// === RESIDENTE ===
 function initResidenteModal() {
   const modal = document.getElementById("residente-modal");
   const input = document.getElementById("resident-lastname");
   const errorEl = document.getElementById("resident-error");
   const appContainer = document.getElementById("residente-app");
-  const userDisplay = document.getElementById("current-user");
 
   showSection("residente-modal");
   input.focus();
@@ -133,24 +129,16 @@ function initResidenteModal() {
       return;
     }
     errorEl.style.display = "none";
-    registerResident(lastName);
-    userDisplay.textContent = lastName;
     appContainer.style.display = "block";
     modal.style.display = "none";
+    document.getElementById("current-user").textContent = lastName;
     await setupWeekButtons(lastName);
   };
-
-  input.addEventListener("keypress", e => {
-    if (e.key === "Enter") document.getElementById("submit-residente").click();
-  });
 }
 
-// === Configuración de botones de semana para residentes ===
 async function setupWeekButtons(user) {
   const weekLabel = document.getElementById("week-label");
   const grid = document.getElementById("meals-grid");
-  const currentBtn = document.getElementById("btn-current-week");
-  const nextBtn = document.getElementById("btn-next-week");
 
   const renderWeek = async (sunday) => {
     const dates = getWeekDates(sunday);
@@ -212,10 +200,9 @@ async function setupWeekButtons(user) {
     updateMealsSummary(user, dates, stored);
   };
 
-  currentBtn.onclick = () => renderWeek(getCurrentWeekSunday());
-  nextBtn.onclick = () => renderWeek(getNextWeekSunday());
+  document.getElementById("btn-current-week").onclick = () => renderWeek(getCurrentWeekSunday());
+  document.getElementById("btn-next-week").onclick = () => renderWeek(getNextWeekSunday());
 
-  // Por defecto: semana siguiente
   renderWeek(getNextWeekSunday());
 }
 
@@ -239,20 +226,7 @@ function updateMealsSummary(user, dates, stored) {
   `;
 }
 
-function setupReminders(user) {
-  setInterval(async () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = formatDate(tomorrow);
-    const stored = await getUserMeals(user);
-    const hasReg = stored[tomorrowStr] && (stored[tomorrowStr].breakfast || stored[tomorrowStr].lunch || stored[tomorrowStr].dinner);
-    if (!hasReg) {
-      alert(`🔔 ¡Hola! Recuerda registrar si vas a desayunar, comer o cenar mañana.`);
-    }
-  }, 6 * 60 * 60 * 1000);
-}
-
-// === COCINERO: INGRESO Y PANEL ===
+// === COCINERO ===
 function initCocineroModal() {
   const modal = document.getElementById("cocinero-modal");
   const pinInput = document.getElementById("chef-pin");
@@ -276,13 +250,8 @@ function initCocineroModal() {
       pinInput.focus();
     }
   };
-
-  pinInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") document.getElementById("submit-chef").click();
-  });
 }
 
-// === Configuración de botones de semana para cocineros ===
 async function setupCookWeekButtons() {
   const weekLabel = document.getElementById("cook-week-label");
   const summaryContainer = document.getElementById("summary-container");
@@ -349,7 +318,6 @@ async function setupCookWeekButtons() {
       tbody.appendChild(row);
     });
 
-    // Fila de totales
     const totalRow = document.createElement("tr");
     totalRow.style.fontWeight = "bold";
     totalRow.style.backgroundColor = "#f1faee";
@@ -369,11 +337,10 @@ async function setupCookWeekButtons() {
   currentBtn.onclick = () => showSummaryForWeek(getCurrentWeekSunday());
   nextBtn.onclick = () => showSummaryForWeek(getNextWeekSunday());
 
-  // Por defecto: semana actual
   showSummaryForWeek(getCurrentWeekSunday());
 }
 
-// === Reportes para cocineros ===
+// === Reportes ===
 function setupReports() {
   const reportsContainer = document.getElementById("reports-container");
 
@@ -385,7 +352,7 @@ function setupReports() {
     weekStart.setDate(today.getDate() - today.getDay());
     const dates = getWeekDates(weekStart);
 
-    let html = "<h3>📅 Reporte Semanal (total por día)</h3><ul>";
+    let html = "<h3>📅 Reporte Semanal</h3><ul>";
     dates.forEach(date => {
       const dateStr = formatDate(date);
       let breakfast = 0, lunch = 0, dinner = 0;
@@ -426,7 +393,7 @@ function setupReports() {
       });
     }
 
-    let html = "<h3>📅 Reporte Mensual (acumulado por semana)</h3><ul>";
+    let html = "<h3>📅 Reporte Mensual</h3><ul>";
     Object.keys(summary).forEach(week => {
       const s = summary[week];
       html += `<li><strong>${week}:</strong> ${s.breakfast} desayunos, ${s.lunch} comidas, ${s.dinner} cenas</li>`;
@@ -436,48 +403,25 @@ function setupReports() {
   };
 }
 
-// === Cargar y convertir README.md a HTML ===
+// === Léeme ===
 async function loadReadme() {
   const readmeContent = document.getElementById("readme-content");
   const modal = document.getElementById("readme-modal");
 
   try {
     const response = await fetch('README.md');
-    if (!response.ok) throw new Error('No se pudo cargar el archivo');
-
     let text = await response.text();
 
-    // Reemplazar encabezados
     text = text.replace(/^#\s+(.+)$/gm, '<h2>$1</h2>');
     text = text.replace(/^##\s+(.+)$/gm, '<h3>$1</h3>');
-    text = text.replace(/^###\s+(.+)$/gm, '<h4>$1</h4>');
-
-    // Reemplazar listas
-    text = text.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
-    text = text.replace(/(<li>[\s\S]*?)(?=(<h2>|<h3>|$))/g, '<ul>$1</ul>');
-    
-    // Reemplazar negritas
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // Reemplazar saltos de línea
-    text = text.replace(/\n{2,}/g, '</p><p>');
+    text = text.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>[\s\S]*?)(?=<\/li>|$)/g, '<ul>$1</ul>');
     text = text.replace(/\n/g, '<br>');
-    text = text.replace(/<br><\/p>/g, '</p>');
-    text = text.replace(/<p><\/p>/g, '');
 
-    if (!text.startsWith('<p>') && !text.startsWith('<h') && !text.startsWith('<ul>')) {
-      text = `<p>${text}</p>`;
-    }
-
-    readmeContent.innerHTML = text;
+    readmeContent.innerHTML = `<p>${text}</p>`;
   } catch (e) {
-    readmeContent.innerHTML = `
-      <p style="color: #e74c3c;">
-        ❌ No se pudo cargar el archivo README.md.<br>
-        Asegúrate de que existe en la misma carpeta.
-      </p>
-    `;
-    console.error("Error al cargar README.md:", e);
+    readmeContent.innerHTML = `<p style="color: #e74c3c;">❌ Error cargando README.md</p>`;
   }
 
   modal.style.display = "flex";
