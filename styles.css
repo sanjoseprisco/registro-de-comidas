@@ -1,368 +1,445 @@
-/* Reset y base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+// === CONFIGURACIÓN DE GITHUB ===
+const CHEF_PIN = "12345";
+const GITHUB_REPO = "TU-USUARIO/comedor-residencia"; // ← CAMBIA "TU-USUARIO"
+const GITHUB_FILE_PATH = "data/meals.json";
+const GITHUB_BRANCH = "main";
+
+// Opcional: Token de acceso personal (recomendado para escritura)
+// Crea uno en: Settings > Developer settings > Personal access tokens
+const GITHUB_TOKEN = ""; // Deja vacío si no usas token (límite: 60 escrituras/hora)
+
+// === FUNCIONES DE APOYO ===
+function formatDate(date) {
+  return date.toISOString().split("T")[0];
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f4f8;
-  color: #444;
-  line-height: 1.6;
-  min-height: 100vh;
+function formatDay(date) {
+  return date.toLocaleDateString("es-ES", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short"
+  }).replace(/^\w/, c => c.toUpperCase());
 }
 
-.container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eaecef;
-}
-
-.header h1 {
-  font-size: 1.9rem;
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.header p {
-  color: #666;
-  margin-top: 0.5rem;
-}
-
-.logo {
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* Botones de rol */
-.role-buttons {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn-role {
-  display: block;
-  width: 250px;
-  padding: 1.2rem 1rem;
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn-role:hover {
-  transform: translateY(-5px);
-}
-
-.btn-role {
-  background: #a8dadc;
-  color: #1d3557;
-}
-
-.btn-role.btn-chef {
-  background: #f1faee;
-  color: #1d3557;
-}
-
-/* Formularios */
-.form-group {
-  margin-bottom: 1rem;
-  text-align: left;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.input-box {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #c1dce4;
-  border-radius: 12px;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
-  font-size: 1rem;
-  background: #f8fdff;
-  max-width: 300px;
-  margin: 0 auto;
-  transition: border-color 0.3s ease;
-}
-
-.input-box:focus {
-  outline: none;
-  border-color: #45b7d1;
-}
-
-/* Selector de semana (botones) */
-.week-selector {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-/* Botones de semana */
-.btn-week {
-  display: block;
-  width: 220px;
-  padding: 0.8rem 1rem;
-  margin: 0.3rem auto;
-  background: #7f8c8d;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 1.05rem;
-  font-weight: bold;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.btn-week:hover {
-  background: #95a5a6;
-  transform: translateY(-2px);
-}
-
-.btn-week:active {
-  transform: translateY(1px);
-}
-
-/* Grid de comidas */
-.meals-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
-
-.meal-day {
-  background: #f8fdff;
-  border: 1px solid #e0f0f5;
-  border-radius: 16px;
-  padding: 1.3rem;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-}
-
-.meal-day:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-}
-
-.meal-day h3 {
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #457b9d;
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-.meal-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.meal-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.meal-option input {
-  transform: scale(1.2);
-  accent-color: #a8dadc;
-}
-
-.meal-option label {
-  font-weight: 500;
-  color: #2b4a66;
-}
-
-/* Botones de reporte */
-.report-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-/* Resumen de comidas del residente */
-.meals-summary {
-  text-align: center;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: #f1faee;
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  font-size: 1rem;
-  color: #2c3e50;
-  border: 1px solid #e9f7ef;
-}
-
-.meals-summary strong {
-  color: #1d3557;
-}
-
-/* Tabla de resumen */
-.summary-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.summary-table th,
-.summary-table td {
-  border: 1px solid #dde4e9;
-  padding: 0.7rem;
-  text-align: left;
-}
-
-.summary-table th {
-  background: #a8dadc;
-  color: #1d3557;
-  font-weight: 600;
-}
-
-.summary-table td {
-  background: #f8fdff;
-}
-
-.summary-table ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.summary-table li {
-  margin: 0.2rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 18px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
-  position: relative;
-}
-
-.modal-content h2 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-/* Botón de cerrar sesión - rojo 3D */
-.btn-logout {
-  background: linear-gradient(to bottom, #e74c3c, #c0392b);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 14px;
-  cursor: pointer;
-  box-shadow: 
-    0 6px 0 #96281b, 
-    0 8px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-top: 0.5rem;
-  align-self: center;
-  width: 200px;
-}
-
-.btn-logout:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 8px 0 #96281b, 
-    0 10px 20px rgba(0, 0, 0, 0.25);
-}
-
-.btn-logout:active {
-  transform: translateY(2px);
-  box-shadow: 
-    0 4px 0 #96281b;
-}
-
-/* Mensajes de error */
-.error-message {
-  color: #e74c3c;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  display: none;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .container {
-    margin: 1rem;
-    padding: 1rem;
+function getWeekDates(sunday) {
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    dates.push(d);
   }
+  return dates;
+}
 
-  .header h1 {
-    font-size: 1.6rem;
-  }
+function getCurrentWeekSunday() {
+  const today = new Date();
+  const day = today.getDay();
+  const sunday = new Date(today);
+  sunday.setDate(today.getDate() - day);
+  return sunday;
+}
 
-  .role-buttons,
-  .report-buttons,
-  .week-selector {
-    flex-direction: column;
-    align-items: center;
-  }
+function getNextWeekSunday() {
+  const sunday = getCurrentWeekSunday();
+  const nextSunday = new Date(sunday);
+  nextSunday.setDate(sunday.getDate() + 7);
+  return nextSunday;
+}
 
-  .btn-role,
-  .btn-week {
-    width: 100%;
-    max-width: 300px;
-  }
+// === GESTIÓN DE COMIDAS: GitHub API ===
+async function getAllMeals() {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-  .input-box {
-    max-width: 100%;
+    if (!response.ok) throw new Error(data.message || "Error en API");
+
+    const decodedContent = atob(data.content);
+    return JSON.parse(decodedContent) || {};
+  } catch (e) {
+    console.warn("No se pudo cargar meals.json:", e.message);
+    return {};
   }
 }
+
+async function saveAllMeals(mealsData) {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(mealsData, null, 2))));
+
+  const options = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GITHUB_TOKEN ? `token ${GITHUB_TOKEN}` : "",
+    },
+    body: JSON.stringify({
+      message: `Actualización de comidas - ${new Date().toLocaleString()}`,
+      content: content,
+      branch: GITHUB_BRANCH,
+    }),
+  };
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const error = await response.json();
+      alert("Error al guardar: " + error.message);
+      console.error("GitHub error:", error);
+    }
+  } catch (e) {
+    alert("Error de conexión. Revisa tu red.");
+    console.error("Error guardando:", e);
+  }
+}
+
+async function getUserMeals(user) {
+  const allMeals = await getAllMeals();
+  return allMeals[user] || {};
+}
+
+async function saveUserMeals(user, meals) {
+  const allMeals = await getAllMeals();
+  allMeals[user] = meals;
+  await saveAllMeals(allMeals);
+}
+
+// === NAVEGACIÓN ===
+function showSection(id) {
+  ["home-screen", "residente-modal", "cocinero-modal", "residente-app", "cocinero-app"]
+    .forEach(id => document.getElementById(id)?.setAttribute("style", "display: none"));
+  document.getElementById(id)?.setAttribute("style", id.includes("modal") ? "display: flex" : "display: block");
+}
+
+// === RESIDENTE ===
+function initResidenteModal() {
+  const modal = document.getElementById("residente-modal");
+  const input = document.getElementById("resident-lastname");
+  const errorEl = document.getElementById("resident-error");
+  const appContainer = document.getElementById("residente-app");
+
+  showSection("residente-modal");
+  input.focus();
+  errorEl.style.display = "none";
+
+  document.getElementById("submit-residente").onclick = async () => {
+    const lastName = input.value.trim();
+    if (!lastName) {
+      errorEl.style.display = "block";
+      return;
+    }
+    errorEl.style.display = "none";
+    appContainer.style.display = "block";
+    modal.style.display = "none";
+    document.getElementById("current-user").textContent = lastName;
+    await setupWeekButtons(lastName);
+  };
+}
+
+async function setupWeekButtons(user) {
+  const weekLabel = document.getElementById("week-label");
+  const grid = document.getElementById("meals-grid");
+
+  const renderWeek = async (sunday) => {
+    const dates = getWeekDates(sunday);
+    const stored = await getUserMeals(user);
+
+    const firstDay = formatDay(dates[0]);
+    const lastDay = formatDay(dates[6]);
+    weekLabel.textContent = `Semana: ${firstDay} al ${lastDay}`;
+
+    grid.innerHTML = "";
+    dates.forEach(date => {
+      const dateStr = formatDate(date);
+      const dayBox = document.createElement("div");
+      dayBox.className = "meal-day";
+
+      const dayTitle = document.createElement("h3");
+      dayTitle.textContent = formatDay(date);
+      dayBox.appendChild(dayTitle);
+
+      const options = document.createElement("div");
+      options.className = "meal-options";
+
+      ["breakfast", "lunch", "dinner"].forEach(meal => {
+        const label = {
+          breakfast: "Desayuno (8:00)",
+          lunch: "Comida (14:15)",
+          dinner: "Cena (21:00)"
+        }[meal];
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "meal-option";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.dataset.date = dateStr;
+        input.dataset.meal = meal;
+        if (stored[dateStr] && stored[dateStr][meal]) input.checked = true;
+
+        input.addEventListener("change", async () => {
+          const meals = await getUserMeals(user);
+          if (!meals[dateStr]) meals[dateStr] = {};
+          meals[dateStr][meal] = input.checked;
+          await saveUserMeals(user, meals);
+          updateMealsSummary(user, dates, meals);
+        });
+
+        const labelEl = document.createElement("label");
+        labelEl.textContent = label;
+
+        wrapper.appendChild(input);
+        wrapper.appendChild(labelEl);
+        options.appendChild(wrapper);
+      });
+
+      dayBox.appendChild(options);
+      grid.appendChild(dayBox);
+    });
+
+    updateMealsSummary(user, dates, stored);
+  };
+
+  document.getElementById("btn-current-week").onclick = () => renderWeek(getCurrentWeekSunday());
+  document.getElementById("btn-next-week").onclick = () => renderWeek(getNextWeekSunday());
+
+  renderWeek(getNextWeekSunday());
+}
+
+function updateMealsSummary(user, dates, stored) {
+  let breakfasts = 0, lunches = 0, dinners = 0;
+  dates.forEach(date => {
+    const dateStr = formatDate(date);
+    if (stored[dateStr]?.breakfast) breakfasts++;
+    if (stored[dateStr]?.lunch) lunches++;
+    if (stored[dateStr]?.dinner) dinners++;
+  });
+
+  const container = document.getElementById("meals-summary-container");
+  container.innerHTML = `
+    <div class="meals-summary">
+      Has registrado esta semana:
+      <strong>${breakfasts}</strong> desayunos,
+      <strong>${lunches}</strong> comidas,
+      <strong>${dinners}</strong> cenas.
+    </div>
+  `;
+}
+
+// === COCINERO ===
+function initCocineroModal() {
+  const modal = document.getElementById("cocinero-modal");
+  const pinInput = document.getElementById("chef-pin");
+  const errorEl = document.getElementById("chef-error");
+  const appContainer = document.getElementById("cocinero-app");
+
+  showSection("cocinero-modal");
+  pinInput.focus();
+  errorEl.style.display = "none";
+
+  document.getElementById("submit-chef").onclick = () => {
+    if (pinInput.value === CHEF_PIN) {
+      errorEl.style.display = "none";
+      appContainer.style.display = "block";
+      modal.style.display = "none";
+      setupCookWeekButtons();
+      setupReports();
+    } else {
+      errorEl.style.display = "block";
+      pinInput.value = "";
+      pinInput.focus();
+    }
+  };
+}
+
+async function setupCookWeekButtons() {
+  const weekLabel = document.getElementById("cook-week-label");
+  const summaryContainer = document.getElementById("summary-container");
+  const currentBtn = document.getElementById("btn-cook-current-week");
+  const nextBtn = document.getElementById("btn-cook-next-week");
+
+  const showSummaryForWeek = async (sunday) => {
+    const dates = getWeekDates(sunday);
+    const mealsData = await getAllMeals();
+
+    const firstDay = formatDay(dates[0]);
+    const lastDay = formatDay(dates[6]);
+    weekLabel.textContent = `Semana: ${firstDay} al ${lastDay}`;
+
+    const tbody = document.getElementById("summary-body");
+    tbody.innerHTML = "";
+
+    let totalBreakfast = 0, totalLunch = 0, totalDinner = 0;
+
+    dates.forEach(date => {
+      const dateStr = formatDate(date);
+      const row = document.createElement("tr");
+      const dayCell = document.createElement("td");
+      dayCell.textContent = formatDay(date);
+      row.appendChild(dayCell);
+
+      ["breakfast", "lunch", "dinner"].forEach(meal => {
+        const cell = document.createElement("td");
+        const ul = document.createElement("ul");
+        const people = [];
+
+        Object.keys(mealsData).forEach(username => {
+          const userMeals = mealsData[username];
+          if (userMeals[dateStr] && userMeals[dateStr][meal]) {
+            const li = document.createElement("li");
+            li.textContent = username;
+            ul.appendChild(li);
+            people.push(username);
+          }
+        });
+
+        if (ul.children.length === 0) {
+          const li = document.createElement("li");
+          li.textContent = "–";
+          li.style.color = "#999";
+          ul.appendChild(li);
+        }
+
+        const countP = document.createElement("p");
+        countP.style.fontSize = "0.85rem";
+        countP.style.marginTop = "0.3rem";
+        countP.style.color = "#555";
+        countP.textContent = `(${people.length})`;
+
+        if (meal === "breakfast") totalBreakfast += people.length;
+        if (meal === "lunch") totalLunch += people.length;
+        if (meal === "dinner") totalDinner += people.length;
+
+        cell.appendChild(ul);
+        cell.appendChild(countP);
+        row.appendChild(cell);
+      });
+
+      tbody.appendChild(row);
+    });
+
+    const totalRow = document.createElement("tr");
+    totalRow.style.fontWeight = "bold";
+    totalRow.style.backgroundColor = "#f1faee";
+    const totalCell = document.createElement("td");
+    totalCell.textContent = "Total";
+    totalRow.appendChild(totalCell);
+    [totalBreakfast, totalLunch, totalDinner].forEach(total => {
+      const cell = document.createElement("td");
+      cell.textContent = `${total}`;
+      totalRow.appendChild(cell);
+    });
+    tbody.appendChild(totalRow);
+
+    summaryContainer.style.display = "block";
+  };
+
+  currentBtn.onclick = () => showSummaryForWeek(getCurrentWeekSunday());
+  nextBtn.onclick = () => showSummaryForWeek(getNextWeekSunday());
+
+  showSummaryForWeek(getCurrentWeekSunday());
+}
+
+// === Reportes ===
+function setupReports() {
+  const reportsContainer = document.getElementById("reports-container");
+
+  document.getElementById("btn-weekly").onclick = async () => {
+    reportsContainer.innerHTML = "";
+    const mealsData = await getAllMeals();
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const dates = getWeekDates(weekStart);
+
+    let html = "<h3>📅 Reporte Semanal</h3><ul>";
+    dates.forEach(date => {
+      const dateStr = formatDate(date);
+      let breakfast = 0, lunch = 0, dinner = 0;
+
+      Object.values(mealsData).forEach(userMeals => {
+        if (userMeals[dateStr]?.breakfast) breakfast++;
+        if (userMeals[dateStr]?.lunch) lunch++;
+        if (userMeals[dateStr]?.dinner) dinner++;
+      });
+
+      html += `<li><strong>${formatDay(date)}:</strong> ${breakfast} desayunos, ${lunch} comidas, ${dinner} cenas</li>`;
+    });
+    html += "</ul>";
+    reportsContainer.innerHTML = html;
+  };
+
+  document.getElementById("btn-monthly").onclick = async () => {
+    reportsContainer.innerHTML = "";
+    const mealsData = await getAllMeals();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const summary = {};
+    for (let day = 1; day <= 31; day++) {
+      const date = new Date(year, month, day);
+      if (date.getMonth() !== month) break;
+
+      const dateStr = formatDate(date);
+      const weekNum = Math.floor((date.getDate() - 1 + new Date(year, month, 1).getDay()) / 7) + 1;
+      const key = `Semana ${weekNum}`;
+      if (!summary[key]) summary[key] = { breakfast: 0, lunch: 0, dinner: 0 };
+
+      Object.values(mealsData).forEach(userMeals => {
+        if (userMeals[dateStr]?.breakfast) summary[key].breakfast++;
+        if (userMeals[dateStr]?.lunch) summary[key].lunch++;
+        if (userMeals[dateStr]?.dinner) summary[key].dinner++;
+      });
+    }
+
+    let html = "<h3>📅 Reporte Mensual</h3><ul>";
+    Object.keys(summary).forEach(week => {
+      const s = summary[week];
+      html += `<li><strong>${week}:</strong> ${s.breakfast} desayunos, ${s.lunch} comidas, ${s.dinner} cenas</li>`;
+    });
+    html += "</ul>";
+    reportsContainer.innerHTML = html;
+  };
+}
+
+// === Léeme ===
+async function loadReadme() {
+  const readmeContent = document.getElementById("readme-content");
+  const modal = document.getElementById("readme-modal");
+
+  try {
+    const response = await fetch('README.md');
+    let text = await response.text();
+
+    text = text.replace(/^#\s+(.+)$/gm, '<h2>$1</h2>');
+    text = text.replace(/^##\s+(.+)$/gm, '<h3>$1</h3>');
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>[\s\S]*?)(?=<\/li>|$)/g, '<ul>$1</ul>');
+    text = text.replace(/\n/g, '<br>');
+
+    readmeContent.innerHTML = `<p>${text}</p>`;
+  } catch (e) {
+    readmeContent.innerHTML = `<p style="color: #e74c3c;">❌ Error cargando README.md</p>`;
+  }
+
+  modal.style.display = "flex";
+}
+
+// === INICIALIZACIÓN ===
+document.addEventListener("DOMContentLoaded", () => {
+  showSection("home-screen");
+
+  document.getElementById("btn-residente").onclick = initResidenteModal;
+  document.getElementById("btn-cocinero").onclick = initCocineroModal;
+  document.getElementById("btn-readme").onclick = loadReadme;
+
+  document.getElementById("logout-btn")?.addEventListener("click", () => {
+    showSection("home-screen");
+  });
+
+  document.getElementById("logout-btn-cocinero")?.addEventListener("click", () => {
+    showSection("home-screen");
+  });
+});
