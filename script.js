@@ -5,7 +5,7 @@ const GITHUB_FILE_PATH = "data/meals.json";
 const GITHUB_BRANCH = "main";
 
 // Opcional: Token de acceso personal (recomendado)
-const GITHUB_TOKEN = "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";
+const GITHUB_TOKEN = "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";
 
 // === FUNCIONES DE APOYO ===
 function formatDate(date) {
